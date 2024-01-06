@@ -40,24 +40,32 @@ app.get("/todos", async (req, res) => {
 
 app.post("/completed", async (req, res) => {
   const updatePayload = req.body;
-  const parsedPayload = updatePayload.safeParse(updatePayload);
-  if (!parsedPayload) {
-    res.status(411).json({
-      msg: "you sent the wrong inputs",
-    });
-    return;
-  }
-  await todo.update(
-    {
-      _id: req.body.id,
-    },
-    {
-      completed: true,
+
+  try {
+    const todoId = updatePayload.id; 
+    const updatedTodo = await todo.findByIdAndUpdate(
+      todoId,
+      { completed: true },
+      { new: true }
+    );
+
+    if (!updatedTodo) {
+      res.status(404).json({
+        msg: "Todo not found",
+      });
+      return;
     }
-  );
-  res.json({
-    msg: "ToDo markes as completed ",
-  });
+
+    res.json({
+      msg: "ToDo marked as completed",
+      updatedTodo,
+    });
+  } catch (error) {
+    console.error("Error marking ToDo as completed:", error);
+    res.status(500).json({
+      msg: "Internal server error",
+    });
+  }
 });
 
 // Start server
