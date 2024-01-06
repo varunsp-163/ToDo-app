@@ -1,4 +1,42 @@
+import { useState } from "react";
+
 const Todo = () => {
+  const [todos, setTodos] = useState([]);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
+  const addTodo = async () => {
+    if (title && description) {
+      const newTodo = {
+        title: title,
+        description: description,
+        completed: false,
+      };
+
+      setTodos([...todos, newTodo]);
+
+      try {
+        const response = await fetch("http://localhost:3000/todo", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newTodo),
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+      } catch (err) {
+        console.log("Couldn't create the new ToDo");
+      }
+
+      setTitle("");
+      setDescription("");
+    } else {
+      alert("Please enter both title and description.");
+    }
+  };
+
   return (
     <div className="text-center p-2">
       <div className="justify-center pt-3 flex">
@@ -7,8 +45,8 @@ const Todo = () => {
           className="border-2 px-2 m-1"
           placeholder="title"
           type="text"
-          name=""
-          id=""
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
       </div>
       <br />
@@ -18,11 +56,13 @@ const Todo = () => {
           className="border-2 px-2 m-1"
           placeholder="Description"
           type="text"
-          name=""
-          id=""
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
         />
       </div>
-      <button className="border-1 p-2 bg-red-400 rounded-md">Add a ToDo</button>
+      <button className="border-1 p-2 bg-red-400 rounded-md" onClick={addTodo}>
+        Add a ToDo
+      </button>
     </div>
   );
 };
