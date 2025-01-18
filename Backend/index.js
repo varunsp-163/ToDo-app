@@ -32,7 +32,7 @@ app.post("/todo", async (req, res) => {
 
 app.get("/todos", async (req, res) => {
   const todos = await todo.find();
-
+  console.log("todos:", todos);
   res.json({
     todos,
   });
@@ -42,7 +42,7 @@ app.post("/completed", async (req, res) => {
   const updatePayload = req.body;
 
   try {
-    const todoId = updatePayload.id; 
+    const todoId = updatePayload.id;
     const updatedTodo = await todo.findByIdAndUpdate(
       todoId,
       { completed: true },
